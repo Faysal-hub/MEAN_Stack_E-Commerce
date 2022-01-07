@@ -18,6 +18,8 @@ router.post(`/`, (req, res) => {
     image: req.body.image,
     countInStock: req.body.countInStock,
   });
+
+  
   product
     .save()
     .then((createdProduct) => {
