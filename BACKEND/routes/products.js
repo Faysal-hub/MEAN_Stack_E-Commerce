@@ -2,6 +2,7 @@ const { Product } = require('../models/product');
 const express = require('express');
 const { Category } = require('../models/category');
 const router = express.Router();
+const mongoose = require('mongoose');
 
 
 router.get(`/`, async (req, res) => {
@@ -54,6 +55,10 @@ router.post(`/`, async (req, res) => {
 });
 
 router.put('/:id', async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) {
+    return res.status(400).send('Invalid Product Id');
+  }
+
   const category = await Category.findById(req.body.category);
   if (!category) return res.status(400).send('Invalid Category');
 
@@ -79,6 +84,24 @@ router.put('/:id', async (req, res) => {
     return res.status(500).send('the product can not be updated!');
   }
   res.send(product);
+});
+
+router.delete('/:id', (req, res) => {
+  Product.findByIdAndRemove(req.params.id)
+    .then((product) => {
+      if (product) {
+        return res
+          .status(200)
+          .json({ success: true, message: 'the product is deleted!' });
+      } else {
+        return res
+          .status(404)
+          .json({ success: false, message: 'product not found!' });
+      }
+    })
+    .catch((err) => {
+      return res.status(500).json({ success: false, error: err });
+    });
 });
 
 module.exports = router;
