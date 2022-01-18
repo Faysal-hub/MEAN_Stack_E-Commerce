@@ -2,6 +2,7 @@ const { User } = require('../models/user');
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 
 router.get(`/`, async (req, res) => {
@@ -83,11 +84,12 @@ router.post('/login', async (req, res) => {
   }
 
   if (user && bcrypt.compareSync(req.body.password, user.passwordHash)) {
-    res.status(200).send('user Authentication')
-  } else {
-    return res.status(400).send('password is worng!');
+     const token = jwt.sign({ userId: user.id }, 'secret' )
+        res.status(200).send({user: user.email, token: token}) 
+    } else {
+        res.status(400).send('password is wrong!');
   }
-  
+
 });
 
 module.exports = router;
